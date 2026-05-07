@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sede Nativos - Corporación Artística</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <style>
+        /* Animación de entrada para la tarjeta */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-up {
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        /* Ajustes del mapa */
+        #map {
+            height: 420px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        /* Estilos limpios y minimalistas para el popup de Leaflet */
+        .leaflet-popup-content-wrapper {
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            padding: 0;
+            overflow: hidden;
+        }
+        .leaflet-popup-content {
+            margin: 0;
+            text-align: center;
+        }
+        .leaflet-container a.leaflet-popup-close-button {
+            color: #9ca3af;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(243, 244, 246, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .leaflet-container a.leaflet-popup-close-button:hover {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<!-- Fondo con degradado sutil animado para dar sensación de fluidez y movimiento -->
+<body class="bg-gradient-to-br from-slate-50 via-gray-100 to-zinc-200 flex flex-col items-center justify-center min-h-screen p-4 font-sans antialiased selection:bg-black selection:text-white">
+
+    <!-- Contenedor principal con efecto glassmorphism ligero y bordes suaves -->
+    <div class="max-w-xl w-full bg-white/80 backdrop-blur-xl mt-12 mb-8 p-1 sm:p-2 rounded-[2rem] shadow-2xl border border-white/40 animate-slide-up relative">
+        
+        <div class="bg-white rounded-[1.75rem] p-6 sm:p-8 overflow-hidden relative">
+            
+            <!-- Logo flotante sobresaliendo de la tarjeta -->
+            <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-white rounded-full p-1 shadow-xl border border-gray-100">
+                <img src="https://yt3.googleusercontent.com/Yj2LZCwer3llfD2yNpBbgdpOM1vAqBA0T5PxHkE3CqywCu5hd9KIn1id9YK7-3m5ky5itlmT8A=s160-c-k-c0x00ffffff-no-rj" 
+                     alt="Nativos Logo" 
+                     class="w-full h-full rounded-full object-cover">
+            </div>
+
+            <!-- Espaciador para el logo flotante -->
+            <div class="h-12"></div>
+
+            <!-- Encabezado -->
+            <div class="mb-8 text-center mt-2">
+                <span class="text-xs font-bold tracking-widest text-gray-400 uppercase mb-2 block">Corporación Artística</span>
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Sede Nativos</h1>
+                <div class="flex items-center justify-center gap-2 mt-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <p class="text-base font-medium">Carrera 45 # 67-25, Barranquilla</p>
+                </div>
+            </div>
+
+            <!-- Contenedor del Mapa con bordes redondeados integrados -->
+            <div class="relative rounded-2xl overflow-hidden shadow-inner ring-1 ring-gray-100">
+                <div id="map"></div>
+                <!-- Gradiente superpuesto en la parte inferior del mapa para una transición suave -->
+                <div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-black/10 to-transparent z-[400] pointer-events-none"></div>
+            </div>
+
+            <!-- Botón interactivo de redirección -->
+            <div class="mt-8 flex justify-center">
+                <a href="https://www.google.com/maps/dir/?api=1&destination=Carrera+45+%23+67-25,+Barranquilla,+Colombia" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="group relative inline-flex items-center justify-center gap-3 bg-black hover:bg-gray-800 text-white font-semibold py-4 px-8 rounded-full transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:-translate-y-1 w-full sm:w-auto">
+                    
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110 group-hover:-rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                    Cómo llegar?
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        const lat = 10.9922; 
+        const lng = -74.7952;
+        const logoUrl = "https://yt3.googleusercontent.com/Yj2LZCwer3llfD2yNpBbgdpOM1vAqBA0T5PxHkE3CqywCu5hd9KIn1id9YK7-3m5ky5itlmT8A=s160-c-k-c0x00ffffff-no-rj";
+
+        // Inicializar el mapa con zoom deshabilitado en scroll para no interferir con la navegación en móviles
+        const map = L.map('map', {
+            scrollWheelZoom: false,
+            zoomControl: false // Ocultamos los controles por defecto para mantener el diseño limpio
+        }).setView([lat, lng], 17);
+
+        // Mover el control de zoom a la esquina inferior derecha
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        // Capa base de CartoDB (estilo claro)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            maxZoom: 20
+        }).addTo(map);
+
+        // Crear un marcador HTML personalizado altamente interactivo
+        const customMarkerHTML = `
+            <div class="relative flex h-14 w-14 items-center justify-center group">
+                <!-- Efecto de pulso (ping) animado -->
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-20"></span>
+                <!-- Logo como marcador -->
+                <div class="relative w-12 h-12 bg-white rounded-full p-[2px] shadow-lg border-2 border-black transition-transform duration-300 group-hover:scale-110">
+                    <img src="${logoUrl}" class="w-full h-full rounded-full object-cover" alt="Pin Nativos" />
+                </div>
+            </div>
+        `;
+
+        const customIcon = L.divIcon({
+            className: 'bg-transparent border-none', // Limpiar estilos por defecto de Leaflet
+            html: customMarkerHTML,
+            iconSize: [56, 56],
+            iconAnchor: [28, 28],
+            popupAnchor: [0, -30]
+        });
+
+        // Agregar el marcador
+        const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+
+        // Popup con diseño estructurado
+        const popupContent = `
+            <div class="py-3 px-5">
+                <div class="w-8 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
+                <h3 class="text-sm font-bold text-gray-900 mb-1 uppercase tracking-wide">Sede Nativos</h3>
+                <p class="text-xs text-gray-500 m-0">¡Te esperamos para bailar!</p>
+            </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        
+        // Abrir popup con un ligero retraso para dar tiempo a la animación de entrada
+        setTimeout(() => {
+            marker.openPopup();
+        }, 800);
+    </script>
+</body>
+</html>
